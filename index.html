@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="JefeStack: pinturas escolares hechas con pigmentos de remolacha, espinaca, cúrcuma y café.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JefeStack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: bright, bold brand site. Identity = "stack": four paint layers stacked. Big colored product bands, segmented cost bar. Single deliberate light look. */
+:root {
+  --lienzo: #FAFAF8;
+  --white: #FFFFFF;
+  --ink: #17141C;
+  --muted: #6A6572;
+  --line: #E7E4EA;
+  --remolacha: #D1245F;
+  --espinaca: #23A15A;
+  --curcuma: #FFB400;
+  --cafe: #7B4A2A;
+  --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--lienzo); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+.in { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); line-height: 1.02; margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+h2 { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800; }
+p { margin: 0; max-width: 60ch; }
+section { padding-block: clamp(64px, 10vw, 120px); }
+.tag {
+  display: inline-flex; align-items: center; gap: 8px; font-size: .75rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; padding: 7px 14px; border-radius: 99px;
+  background: var(--white); border: 1px solid var(--line);
+}
+.tag i { width: 8px; height: 8px; border-radius: 50%; background: var(--remolacha); }
+.head { display: grid; gap: 18px; margin-bottom: clamp(32px, 5vw, 56px); }
+@media (min-width: 880px) { .head.split { grid-template-columns: 1.1fr 1fr; align-items: end; } }
+.head p { color: var(--muted); font-size: 1.08rem; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 26px; border-radius: 14px; font-weight: 700; text-decoration: none; font-size: .95rem; transition: transform .2s, box-shadow .2s; }
+.btn.dark { background: var(--ink); color: var(--white); box-shadow: 0 6px 0 var(--remolacha); }
+.btn.dark:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--remolacha); }
+.btn.light { background: var(--white); color: var(--ink); border: 2px solid var(--ink); }
+:focus-visible { outline: 3px solid var(--curcuma); outline-offset: 3px; }
+
+/* LOGO */
+.logo { display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 800; font-size: 1.25rem; text-decoration: none; color: inherit; letter-spacing: -.02em; }
+.mk { width: 30px; height: auto; display: block; flex: none; }
+.mk rect:nth-child(1) { fill: var(--a, var(--remolacha)); }
+.mk rect:nth-child(2) { fill: var(--b, var(--espinaca)); }
+.mk rect:nth-child(3) { fill: var(--c, var(--curcuma)); }
+.mk rect:nth-child(4) { fill: var(--d, var(--cafe)); }
+.mk.big { width: 96px; margin: 0 auto; }
+.logo b { color: var(--remolacha); font-weight: 800; }
+
+/* NAV + HERO */
+nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 22px; }
+.links { display: flex; gap: 28px; font-weight: 600; font-size: .92rem; }
+.links a { color: var(--muted); text-decoration: none; }
+.links a:hover { color: var(--ink); }
+@media (max-width: 780px) { .links { display: none; } }
+.hero-grid { display: grid; gap: 48px; align-items: center; padding-block: clamp(28px, 6vw, 72px) clamp(48px, 7vw, 80px); }
+@media (min-width: 940px) { .hero-grid { grid-template-columns: 1.1fr 1fr; } }
+.hero h1 { font-size: clamp(2.6rem, 7vw, 5.4rem); font-weight: 800; margin: 22px 0 22px; }
+.hero h1 .hl { background: linear-gradient(90deg, var(--remolacha), var(--curcuma)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .lead { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: var(--muted); max-width: 46ch; }
+.ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
+
+/* the stack illustration */
+.stack { position: relative; height: clamp(320px, 44vw, 460px); min-width: 0; }
+.layer {
+  position: absolute; left: 50%; width: min(400px, 86%); height: 34%;
+  border-radius: 26px; padding: 18px 22px; color: var(--white);
+  display: flex; flex-direction: column; justify-content: space-between;
+  box-shadow: 0 24px 40px -18px rgba(23,20,28,.45);
+  transform: translateX(-50%) rotate(var(--r)) translateY(0);
+  transition: transform .5s cubic-bezier(.2,.8,.2,1);
+  animation: drop .9s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d);
+}
+.layer span { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+.layer strong { font-family: var(--display); font-size: clamp(1.1rem, 2.4vw, 1.5rem); font-weight: 700; }
+.l1 { background: var(--cafe); top: 62%; --r: 4deg; --d: .3s; }
+.l2 { background: var(--curcuma); color: var(--ink); top: 42%; --r: -5deg; --d: .2s; }
+.l3 { background: var(--espinaca); top: 22%; --r: 3deg; --d: .1s; }
+.l4 { background: var(--remolacha); top: 2%; --r: -3deg; --d: 0s; }
+.stack:hover .l4 { transform: translateX(-50%) rotate(-8deg) translateY(-14px); }
+.stack:hover .l3 { transform: translateX(-44%) rotate(6deg) translateY(-6px); }
+.stack:hover .l2 { transform: translateX(-56%) rotate(-9deg) translateY(4px); }
+.stack:hover .l1 { transform: translateX(-46%) rotate(8deg) translateY(12px); }
+@keyframes drop { from { opacity: 0; translate: 0 -40px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .layer { animation: none; transition: none; } }
+
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
+@media (min-width: 760px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stats div { background: var(--white); padding: 22px 24px; }
+.stats b { display: block; font-family: var(--display); font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 800; font-variant-numeric: tabular-nums; }
+.stats span { color: var(--muted); font-size: .88rem; }
+
+/* PRODUCTS */
+.products { display: grid; gap: 18px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .products { grid-template-columns: 1fr 1fr; } }
+.product {
+  border-radius: 30px; padding: clamp(24px, 4vw, 36px); min-height: 360px; min-width: 0;
+  background: var(--p); color: var(--fg, var(--white)); position: relative; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 28px;
+  transition: transform .3s;
+}
+.product:hover { transform: translateY(-4px) rotate(-.4deg); }
+.product::after {
+  content: ""; position: absolute; right: -60px; top: -60px; width: 240px; height: 240px; border-radius: 50%;
+  background: rgba(255,255,255,.14);
+}
+.product .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; position: relative; z-index: 1; }
+.product .num { font-family: var(--display); font-size: .9rem; font-weight: 700; opacity: .8; }
+.product .src { font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 6px 12px; border-radius: 99px; background: rgba(255,255,255,.2); }
+.product h3 { font-size: clamp(2rem, 4.4vw, 3rem); font-weight: 800; position: relative; z-index: 1; }
+.product p { opacity: .9; margin-top: 10px; position: relative; z-index: 1; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; position: relative; z-index: 1; }
+.chips span { font-size: .82rem; font-weight: 600; padding: 7px 13px; border-radius: 99px; background: rgba(255,255,255,.92); color: var(--ink); }
+
+/* PROCESS */
+.process { background: var(--ink); color: var(--white); border-radius: 36px; margin-inline: max(8px, env(safe-area-inset-left, 0px)); }
+.process .head p { color: #B9B3C2; }
+.process .tag { background: transparent; border-color: #3A3542; color: var(--white); }
+.steps { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .steps { grid-template-columns: repeat(4, 1fr); } }
+.step { background: #221E29; border-radius: 24px; padding: 26px; border-top: 6px solid var(--s); min-width: 0; }
+.step .n { font-family: var(--display); font-weight: 800; font-size: 2.4rem; color: var(--s); line-height: 1; }
+.step h3 { font-size: 1.25rem; margin: 18px 0 10px; font-weight: 700; }
+.step p { color: #B9B3C2; font-size: .94rem; }
+
+/* IDENTITY */
+.idgrid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .idgrid { grid-template-columns: 1fr 1fr; } }
+.card { background: var(--white); border: 1px solid var(--line); border-radius: 28px; padding: clamp(22px, 4vw, 34px); min-width: 0; }
+.card h3 { font-size: 1rem; font-weight: 700; letter-spacing: .02em; margin-bottom: 20px; color: var(--muted); font-family: var(--body); text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; }
+.logos { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 520px) { .logos { grid-template-columns: 1fr 1fr; } }
+.logos > div { border-radius: 20px; display: grid; place-items: center; padding: 40px 12px; text-align: center; }
+.logos .on-dark { background: var(--ink); color: var(--white); }
+.logos .on-light { background: var(--lienzo); border: 1px solid var(--line); }
+.bigmark { display: grid; gap: 7px; width: 90px; margin: 0 auto; }
+.bigmark i { display: block; height: 16px; border-radius: 8px; }
+.palette { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sw { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); min-width: 0; }
+.sw div { height: 78px; }
+.sw p { padding: 10px 12px; font-size: .8rem; line-height: 1.35; }
+.sw p b { display: block; font-size: .86rem; }
+.sw p code { color: var(--muted); font-size: .76rem; }
+.type { grid-column: 1 / -1; display: grid; gap: 24px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .type { grid-template-columns: 1.3fr 1fr; } }
+.type .aa { font-family: var(--display); font-weight: 800; font-size: clamp(3rem, 8vw, 5.4rem); line-height: 1; }
+.type .body-sample { font-size: 1.05rem; color: var(--muted); }
+.type small { display: block; margin-top: 10px; font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+
+/* COSTS */
+.costbar { display: flex; height: 64px; border-radius: 18px; overflow: hidden; gap: 4px; }
+.costbar div { flex: var(--v) 1 0; background: var(--p); min-width: 0; animation: grow 1.2s cubic-bezier(.2,.8,.2,1) both; transform-origin: left; }
+@keyframes grow { from { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .costbar div { animation: none; } }
+.legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 24px; margin-top: 26px; }
+@media (min-width: 760px) { .legend { grid-template-columns: repeat(3, 1fr); } }
+.legend div { display: flex; align-items: center; gap: 10px; font-size: .95rem; min-width: 0; }
+.legend i { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+.legend b { margin-left: auto; font-variant-numeric: tabular-nums; }
+.totals { display: grid; gap: 14px; grid-template-columns: 1fr; margin-top: 34px; }
+@media (min-width: 640px) { .totals { grid-template-columns: 1fr 1fr; } }
+.totals div { border-radius: 22px; padding: 24px; background: var(--white); border: 1px solid var(--line); }
+.totals .hot { background: var(--curcuma); border-color: var(--curcuma); }
+.totals b { display: block; font-family: var(--display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; font-variant-numeric: tabular-nums; }
+.totals span { font-size: .92rem; }
+
+/* PROMISE */
+.promise { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 820px) { .promise { grid-template-columns: repeat(3, 1fr); } }
+.promise .card p { color: var(--muted); font-size: .95rem; }
+.promise .ico { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 18px; font-family: var(--display); font-weight: 800; color: var(--white); }
+.promise h4 { font-family: var(--display); font-size: 1.2rem; margin: 0 0 8px; font-weight: 700; }
+
+/* TEAM */
+.team { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 760px) { .team { grid-template-columns: repeat(3, 1fr); } }
+.member { display: flex; align-items: center; gap: 16px; }
+.member .av { width: 64px; height: 64px; border-radius: 20px; flex: none; display: grid; place-items: center; font-family: var(--display); font-weight: 800; color: var(--white); }
+.member h4 { font-family: var(--display); font-size: 1.05rem; margin: 0; font-weight: 700; line-height: 1.2; }
+.member p { color: var(--muted); font-size: .88rem; }
+.advisors { margin-top: 28px; color: var(--muted); font-size: .92rem; }
+.advisors b { color: var(--ink); }
+
+/* CTA */
+.cta { padding-block: 0 clamp(64px, 10vw, 110px); }
+.cta .box {
+  border-radius: 36px; padding: clamp(36px, 7vw, 80px) clamp(22px, 5vw, 64px); text-align: center;
+  background: linear-gradient(135deg, var(--remolacha), #8E1A55 50%, var(--cafe));
+  color: var(--white); position: relative; overflow: hidden;
+}
+.cta h2 { font-size: clamp(2.2rem, 6.5vw, 4.6rem); }
+.cta p { margin: 18px auto 0; opacity: .9; }
+.cta .bigmark { margin-bottom: 28px; }
+footer { border-top: 1px solid var(--line); padding-block: 28px 36px; font-size: .86rem; color: var(--muted); }
+footer .in { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px 28px; }
+
+/* ===== EFECTOS ===== */
+.progress { position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 50; transform-origin: left; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--remolacha), var(--espinaca), var(--curcuma), var(--cafe)); }
+.hero { position: relative; overflow: hidden; }
+.hero > .in { position: relative; z-index: 1; }
+#paint { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.blobs i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .28; z-index: 0; animation: float 18s ease-in-out infinite alternate; pointer-events: none; }
+.blobs i:nth-child(1) { width: 360px; height: 360px; background: var(--remolacha); top: -120px; right: 8%; }
+.blobs i:nth-child(2) { width: 300px; height: 300px; background: var(--curcuma); bottom: 8%; right: -80px; animation-duration: 23s; }
+.blobs i:nth-child(3) { width: 280px; height: 280px; background: var(--espinaca); bottom: -120px; left: 15%; animation-duration: 27s; opacity: .18; }
+@keyframes float { to { transform: translate(70px, 50px) scale(1.2); } }
+
+.hero .tag { animation: up .8s cubic-bezier(.2,.8,.2,1) both; }
+.hero h1 { animation: up .9s .08s cubic-bezier(.2,.8,.2,1) both; }
+.hero .lead { animation: up .9s .18s cubic-bezier(.2,.8,.2,1) both; }
+.hero .ctas { animation: up .9s .28s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes up { from { opacity: 0; transform: translateY(26px); } }
+.hero h1 .hl { background-image: linear-gradient(90deg, var(--remolacha), var(--curcuma), var(--espinaca), var(--remolacha)); background-size: 300% 100%; animation: shine 8s linear infinite; }
+@keyframes shine { to { background-position: 300% 0; } }
+
+.btn { position: relative; overflow: hidden; }
+.btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.4) 50%, transparent 70%); transform: translateX(-120%); transition: transform .7s; pointer-events: none; }
+.btn:hover::after { transform: translateX(120%); }
+
+.stack { cursor: pointer; }
+.layer { transition: transform .5s cubic-bezier(.2,.8,.2,1), top .6s cubic-bezier(.2,.8,.2,1); }
+.hint { text-align: center; font-size: .8rem; color: var(--muted); font-weight: 600; margin: -20px 0 0; max-width: none; }
+@media (min-width: 940px) { .hint { grid-column: 2; } }
+
+html, body { overflow-x: clip; }
+.marquee { overflow: hidden; background: var(--ink); color: var(--white); padding-block: 18px; transform: rotate(-1.5deg) scaleX(1.05); margin: 30px 0 0; position: relative; z-index: 2; }
+.marquee .track { display: inline-flex; white-space: nowrap; animation: slide 32s linear infinite; font-family: var(--display); font-weight: 800; font-size: clamp(1.1rem, 2.8vw, 1.9rem); }
+.marquee span { display: inline-flex; align-items: center; gap: 36px; padding-right: 36px; }
+.marquee span::after { content: ""; width: 16px; height: 16px; border-radius: 50%; background: var(--dot); }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+.product { background: radial-gradient(circle at var(--mx, 70%) var(--my, 20%), rgba(255,255,255,.28), transparent 45%), var(--p); will-change: transform; }
+
+.pre { opacity: 0; transform: translateY(44px); }
+.reveal { transition: opacity .9s cubic-bezier(.2,.8,.2,1), transform .9s cubic-bezier(.2,.8,.2,1); }
+.costbar div { animation: none; transition: transform 1.3s cubic-bezier(.2,.8,.2,1); }
+.costbar div:nth-child(2) { transition-delay: .1s; } .costbar div:nth-child(3) { transition-delay: .2s; }
+.costbar div:nth-child(4) { transition-delay: .3s; } .costbar div:nth-child(5) { transition-delay: .4s; } .costbar div:nth-child(6) { transition-delay: .5s; }
+.costbar.pre { opacity: 1; transform: none; }
+.costbar.pre div { transform: scaleX(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .blobs i, .hero .tag, .hero h1, .hero .lead, .hero .ctas, .hero h1 .hl, .marquee .track { animation: none; }
+  .pre { opacity: 1; transform: none; }
+  .costbar.pre div { transform: none; }
+}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"></div>
+
+<header class="hero">
+  <div class="blobs" aria-hidden="true"><i></i><i></i><i></i></div>
+  <canvas id="paint" aria-hidden="true"></canvas>
+  <div class="in">
+    <nav>
+      <a class="logo" href="#top" aria-label="JefeStack inicio"><svg class="mk" viewBox="0 0 40 34" aria-hidden="true"><rect width="40" height="7" rx="3.5"/><rect x="8" y="9" width="32" height="7" rx="3.5"/><rect x="2" y="18" width="36" height="7" rx="3.5"/><rect x="6" y="27" width="28" height="7" rx="3.5"/></svg><span>Jefe<b>Stack</b></span></a>
+      <div class="links"><a href="#colores">Colores</a><a href="#proceso">Proceso</a><a href="#marca">Marca</a><a href="#equipo">Equipo</a></div>
+      <a class="btn light" href="#colores" style="padding:10px 18px">Ver colores</a>
+    </nav>
+    <div class="hero-grid" id="top">
+      <div>
+        <span class="tag"><i></i>Pinturas de pigmento vegetal · Costa Rica</span>
+        <h1>Color natural, <span class="hl">capa por capa.</span></h1>
+        <p class="lead">JefeStack crea pinturas escolares con lo que ya tienes en la cocina: remolacha, espinaca, cúrcuma y café. Cuatro tonos probados en papel, con buena adherencia y acabado parejo.</p>
+        <div class="ctas">
+          <a class="btn dark" href="#colores">Conoce los 4 tonos</a>
+          <a class="btn light" href="#proceso">Cómo se hacen</a>
+        </div>
+      </div>
+      <div class="stack" aria-label="Los cuatro tonos de JefeStack">
+        <div class="layer l1"><span>N.º 04 · Café</span><strong>Arena Tostada</strong></div>
+        <div class="layer l2"><span>N.º 03 · Cúrcuma</span><strong>Amarillo Lima</strong></div>
+        <div class="layer l3"><span>N.º 02 · Espinaca</span><strong>Verde Musgo</strong></div>
+        <div class="layer l4"><span>N.º 01 · Remolacha</span><strong>Púrpura Profundo</strong></div>
+      </div>
+      <p class="hint" id="hint">Toca las capas para cambiar el orden</p>
+    </div>
+    <div class="stats">
+      <div><b>4</b><span>tonos vegetales</span></div>
+      <div><b>4/4</b><span>con adherencia firme</span></div>
+      <div><b>₡1 310</b><span>costo de producción del set</span></div>
+      <div><b>6</b><span>fuentes científicas</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    <span style="--dot:var(--remolacha)">Remolacha</span><span style="--dot:var(--espinaca)">Espinaca</span><span style="--dot:var(--curcuma)">Cúrcuma</span><span style="--dot:#C08A5F">Café</span><span style="--dot:var(--remolacha)">Hecho en Costa Rica</span>
+    <span style="--dot:var(--remolacha)">Remolacha</span><span style="--dot:var(--espinaca)">Espinaca</span><span style="--dot:var(--curcuma)">Cúrcuma</span><span style="--dot:#C08A5F">Café</span><span style="--dot:var(--remolacha)">Hecho en Costa Rica</span>
+  </div>
+</div>
+
+<section id="colores">
+  <div class="in">
+    <div class="head split">
+      <div><span class="tag"><i style="background:var(--espinaca)"></i>La colección</span><h2 style="margin-top:18px">Cuatro capas. Cuatro plantas.</h2></div>
+      <p>Cada tono viene de un pigmento distinto, así que cada uno tiene su propio carácter al pintar y al secar.</p>
+    </div>
+    <div class="products">
+      <article class="product" style="--p:var(--remolacha)">
+        <div class="top"><span class="num">01</span><span class="src">Remolacha</span></div>
+        <div><h3>Púrpura Profundo</h3><p>Betalaínas solubles en agua, extraídas por triturado y filtrado.</p></div>
+        <div class="chips"><span>Intensidad media-alta</span><span>Casi no cambia al secar</span><span>Adherencia firme</span></div>
+      </article>
+      <article class="product" style="--p:var(--espinaca)">
+        <div class="top"><span class="num">02</span><span class="src">Espinaca</span></div>
+        <div><h3>Verde Musgo</h3><p>Extracto de hojas con clorofila a y b, el verde de la fotosíntesis.</p></div>
+        <div class="chips"><span>Intensidad media</span><span>Se aclara al secar</span><span>Adherencia firme</span></div>
+      </article>
+      <article class="product" style="--p:var(--curcuma);--fg:var(--ink)">
+        <div class="top"><span class="num">03</span><span class="src">Cúrcuma</span></div>
+        <div><h3>Amarillo Lima</h3><p>Curcumina en suspensión: partículas finas que dan un amarillo luminoso.</p></div>
+        <div class="chips"><span>Intensidad alta</span><span>Casi no cambia al secar</span><span>Adherencia firme</span></div>
+      </article>
+      <article class="product" style="--p:var(--cafe)">
+        <div class="top"><span class="num">04</span><span class="src">Café</span></div>
+        <div><h3>Arena Tostada</h3><p>Melanoidinas que nacen al tostar el grano. Pasa de café quemado a arena suave.</p></div>
+        <div class="chips"><span>Intensidad media-baja</span><span>Se aclara mucho</span><span>Adherencia firme</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="process" id="proceso">
+  <div class="in">
+    <div class="head split">
+      <div><span class="tag"><i style="background:var(--curcuma)"></i>El proceso</span><h2 style="margin-top:18px">De la cocina al papel.</h2></div>
+      <p>Mismo método y mismas condiciones para los cuatro tonos.</p>
+    </div>
+    <div class="steps">
+      <div class="step" style="--s:var(--remolacha)"><div class="n">01</div><h3>Extraer</h3><p>Triturar y filtrar remolacha y espinaca. Mezclar la cúrcuma con agua. Preparar el café en caliente.</p></div>
+      <div class="step" style="--s:var(--espinaca)"><div class="n">02</div><h3>Aglutinar</h3><p>Agregar goma blanca escolar diluida en partes iguales hasta lograr una mezcla uniforme.</p></div>
+      <div class="step" style="--s:var(--curcuma)"><div class="n">03</div><h3>Pintar</h3><p>Aplicar con pincel sobre papel blanco grueso, con trazos y cantidades parecidas.</p></div>
+      <div class="step" style="--s:#C08A5F"><div class="n">04</div><h3>Secar</h3><p>Dejar secar en un lugar ventilado y sin sol directo. Revisar tono, grietas y adherencia.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="marca">
+  <div class="in">
+    <div class="head split">
+      <div><span class="tag"><i style="background:var(--cafe)"></i>Identidad de marca</span><h2 style="margin-top:18px">Así se ve JefeStack.</h2></div>
+      <p>El logo son cuatro capas de pintura apiladas, una por cada planta. El nombre une al jefe que manda en el color con el stack: capas que se suman.</p>
+    </div>
+    <div class="idgrid">
+      <div class="card">
+        <h3>Logo</h3>
+        <div class="logos">
+          <div class="on-light"><div><svg class="mk big" viewBox="0 0 40 34" aria-hidden="true"><rect width="40" height="7" rx="3.5"/><rect x="8" y="9" width="32" height="7" rx="3.5"/><rect x="2" y="18" width="36" height="7" rx="3.5"/><rect x="6" y="27" width="28" height="7" rx="3.5"/></svg><div class="logo" style="margin-top:18px"><span>Jefe<b>Stack</b></span></div></div></div>
+          <div class="on-dark"><div><svg class="mk big" viewBox="0 0 40 34" aria-hidden="true" style="--d:#C08A5F"><rect width="40" height="7" rx="3.5"/><rect x="8" y="9" width="32" height="7" rx="3.5"/><rect x="2" y="18" width="36" height="7" rx="3.5"/><rect x="6" y="27" width="28" height="7" rx="3.5"/></svg><div class="logo" style="margin-top:18px"><span>Jefe<b style="color:var(--curcuma)">Stack</b></span></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Paleta</h3>
+        <div class="palette">
+          <div class="sw"><div style="background:var(--remolacha)"></div><p><b>Remolacha</b><code>#D1245F</code></p></div>
+          <div class="sw"><div style="background:var(--espinaca)"></div><p><b>Espinaca</b><code>#23A15A</code></p></div>
+          <div class="sw"><div style="background:var(--curcuma)"></div><p><b>Cúrcuma</b><code>#FFB400</code></p></div>
+          <div class="sw"><div style="background:var(--cafe)"></div><p><b>Café</b><code>#7B4A2A</code></p></div>
+          <div class="sw"><div style="background:var(--ink)"></div><p><b>Tinta</b><code>#17141C</code></p></div>
+          <div class="sw"><div style="background:var(--lienzo)"></div><p><b>Lienzo</b><code>#FAFAF8</code></p></div>
+        </div>
+      </div>
+      <div class="card type">
+        <div><h3>Tipografía</h3><div class="aa">Aa Stack</div><small>Unbounded · Títulos</small></div>
+        <div style="align-self:end"><p class="body-sample">Inter para todo el texto. Clara, moderna y fácil de leer en pantalla y en etiquetas.</p><small>Inter · Texto</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="costos" style="padding-top:0">
+  <div class="in">
+    <div class="head split">
+      <div><span class="tag"><i style="background:var(--curcuma)"></i>Transparencia</span><h2 style="margin-top:18px">Lo que cuesta cada capa.</h2></div>
+      <p>Costo real de los materiales usados para producir el set de cuatro tonos, en colones.</p>
+    </div>
+    <div class="costbar" role="img" aria-label="Costo por material: café 420, goma blanca 285, cúrcuma 265, remolacha 180, espinaca 85 y filtros 75 colones">
+      <div style="--v:420;--p:var(--cafe)"></div>
+      <div style="--v:285;--p:var(--ink)"></div>
+      <div style="--v:265;--p:var(--curcuma)"></div>
+      <div style="--v:180;--p:var(--remolacha)"></div>
+      <div style="--v:85;--p:var(--espinaca)"></div>
+      <div style="--v:75;--p:#B9B3C2"></div>
+    </div>
+    <div class="legend">
+      <div><i style="background:var(--cafe)"></i>Café<b>₡420</b></div>
+      <div><i style="background:var(--ink)"></i>Goma blanca<b>₡285</b></div>
+      <div><i style="background:var(--curcuma)"></i>Cúrcuma<b>₡265</b></div>
+      <div><i style="background:var(--remolacha)"></i>Remolacha<b>₡180</b></div>
+      <div><i style="background:var(--espinaca)"></i>Espinaca<b>₡85</b></div>
+      <div><i style="background:#B9B3C2"></i>Filtros<b>₡75</b></div>
+    </div>
+    <div class="totals">
+      <div class="hot"><b>₡1 310</b><span>Costo de producción del set de 4 tonos</span></div>
+      <div><b>₡4 990</b><span>Inversión total en materiales comprados</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="compromiso" style="padding-top:0">
+  <div class="in">
+    <div class="head split">
+      <div><span class="tag"><i style="background:var(--espinaca)"></i>Compromiso</span><h2 style="margin-top:18px">Natural y honesto.</h2></div>
+      <p>Que sea vegetal no la hace segura o ecológica por sí sola. Esto es lo que seguimos estudiando.</p>
+    </div>
+    <div class="promise">
+      <div class="card"><div class="ico" style="background:var(--remolacha)">01</div><h4>Estabilidad</h4><p>La luz, el calor, el oxígeno y el pH pueden cambiar el tono. Seguimos probando cómo conservarlo.</p></div>
+      <div class="card"><div class="ico" style="background:var(--espinaca)">02</div><h4>Seguridad</h4><p>Úsala con supervisión adulta. No se come ni debe tocar los ojos. Aún no está certificada para niños pequeños.</p></div>
+      <div class="card"><div class="ico" style="background:var(--cafe)">03</div><h4>Impacto</h4><p>La goma blanca no es vegetal. Medimos agua, energía y residuos antes de decir que es más ecológica.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="equipo" style="padding-top:0">
+  <div class="in">
+    <div class="head"><span class="tag"><i></i>Equipo</span><h2>Los jefes del stack.</h2></div>
+    <div class="team">
+      <div class="member card"><div class="av" style="background:var(--remolacha)">VL</div><div><h4>Valeria Lara Brenes</h4><p>Cofundadora</p></div></div>
+      <div class="member card"><div class="av" style="background:var(--espinaca)">AS</div><div><h4>Alonso Soto Ocampo</h4><p>Cofundador</p></div></div>
+      <div class="member card"><div class="av" style="background:var(--cafe)">VF</div><div><h4>Víctor Fernández Jiménez</h4><p>Cofundador</p></div></div>
+    </div>
+    <p class="advisors"><b>Asesores:</b> Fernando Ugalde, Gloriana Fonseca y Ariana Alfaro · San Diego Bilingual High School, Décimo A</p>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="in">
+    <div class="box">
+      <svg class="mk big" viewBox="0 0 40 34" aria-hidden="true" style="--a:#fff;--b:#FFB400;--c:#7BE0A3;--d:#F2C9A8;margin-bottom:28px"><rect width="40" height="7" rx="3.5"/><rect x="8" y="9" width="32" height="7" rx="3.5"/><rect x="2" y="18" width="36" height="7" rx="3.5"/><rect x="6" y="27" width="28" height="7" rx="3.5"/></svg>
+      <h2>Pinta con JefeStack.</h2>
+      <p>Remolacha, espinaca, cúrcuma y café. Cuatro capas de color que salen de la tierra.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="in">
+    <a class="logo" href="#top" style="font-size:1rem"><svg class="mk" viewBox="0 0 40 34" aria-hidden="true"><rect width="40" height="7" rx="3.5"/><rect x="8" y="9" width="32" height="7" rx="3.5"/><rect x="2" y="18" width="36" height="7" rx="3.5"/><rect x="6" y="27" width="28" height="7" rx="3.5"/></svg><span>Jefe<b>Stack</b></span></a>
+    <span>Alajuela, Costa Rica · Proyecto de Ciencias y Español · 2026</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(pointer: fine)').matches;
+  const COLS = ['#D1245F', '#23A15A', '#FFB400', '#7B4A2A'];
+
+  // Barra de progreso al hacer scroll
+  const bar = document.querySelector('.progress');
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Stack: tocar para cambiar el orden de las capas
+  const stack = document.querySelector('.stack');
+  const POS = [['62%', '4deg'], ['42%', '-5deg'], ['22%', '3deg'], ['2%', '-3deg']]; // de abajo hacia arriba
+  let order = [...stack.querySelectorAll('.layer')]; // DOM: abajo -> arriba
+  const place = () => order.forEach((l, i) => {
+    l.style.top = POS[i][0]; l.style.setProperty('--r', POS[i][1]); l.style.zIndex = i + 1;
+  });
+  stack.addEventListener('click', () => {
+    order.unshift(order.pop()); // la capa de arriba pasa al fondo
+    place();
+    document.getElementById('hint').textContent = '¡Otra vez! Cada capa es un color de la tierra';
+  });
+
+  if (calm) return;
+
+  // Pintura que sigue el mouse y salpicaduras al hacer clic
+  const hero = document.querySelector('.hero');
+  const cv = document.getElementById('paint');
+  const ctx = cv.getContext('2d');
+  let dots = [], n = 0, running = false;
+  const size = () => {
+    const r = hero.getBoundingClientRect(), d = devicePixelRatio || 1;
+    cv.width = r.width * d; cv.height = r.height * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+  };
+  size(); addEventListener('resize', size);
+  const pos = e => { const r = hero.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  const loop = () => {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    dots = dots.filter(p => p.a > 0.01);
+    for (const p of dots) {
+      p.x += p.vx; p.y += p.vy; p.vy += p.g; p.vx *= .96; p.r *= p.shrink; p.a -= p.fade;
+      ctx.globalAlpha = Math.max(p.a, 0);
+      ctx.fillStyle = p.c;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (dots.length) requestAnimationFrame(loop); else running = false;
+  };
+  const kick = () => { if (!running) { running = true; requestAnimationFrame(loop); } };
+  if (fine) hero.addEventListener('pointermove', e => {
+    const [x, y] = pos(e);
+    dots.push({ x, y, vx: 0, vy: 0, g: 0, r: 7 + Math.random() * 9, shrink: 1.01, a: .45, fade: .012, c: COLS[(n++ >> 4) % 4] });
+    if (dots.length > 260) dots.splice(0, dots.length - 260);
+    kick();
+  });
+  hero.addEventListener('pointerdown', e => {
+    const [x, y] = pos(e), c = COLS[Math.floor(Math.random() * 4)];
+    for (let i = 0; i < 26; i++) {
+      const ang = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 7;
+      dots.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 2, g: .25, r: 3 + Math.random() * 8, shrink: .985, a: .9, fade: .014, c });
+    }
+    kick();
+  });
+
+  // Aparecer al hacer scroll (solo lo que todavía no se ve)
+  const targets = document.querySelectorAll('.head, .product, .step, .card, .member, .costbar, .legend, .totals > div, .cta .box');
+  const io = new IntersectionObserver(entries => entries.forEach(en => {
+    if (en.isIntersecting) { en.target.classList.remove('pre'); io.unobserve(en.target); }
+  }), { threshold: .15 });
+  targets.forEach(el => {
+    if (el.getBoundingClientRect().top > innerHeight) {
+      const i = [...el.parentElement.children].indexOf(el);
+      el.classList.add('reveal', 'pre');
+      el.style.transitionDelay = `${(i % 4) * 90}ms`;
+      io.observe(el);
+    }
+  });
+
+  // Números que cuentan hacia arriba
+  const fmt = v => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  document.querySelectorAll('.stats b, .totals b').forEach(b => {
+    const txt = b.textContent.trim();
+    if (txt.includes('/') || b.getBoundingClientRect().top < innerHeight) return;
+    const prefix = txt.match(/^\D*/)[0], to = +txt.replace(/\D/g, '');
+    const co = new IntersectionObserver(([en]) => {
+      if (!en.isIntersecting) return;
+      co.disconnect();
+      const t0 = performance.now();
+      const step = t => {
+        const k = Math.min((t - t0) / 1400, 1), e = 1 - Math.pow(1 - k, 3);
+        b.textContent = prefix + fmt(Math.round(to * e));
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }, { threshold: .6 });
+    co.observe(b);
+  });
+
+  // Tarjetas que se inclinan con el mouse
+  if (fine) document.querySelectorAll('.product').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      card.style.transform = `perspective(900px) rotateX(${(.5 - y) * 10}deg) rotateY(${(x - .5) * 12}deg) translateY(-4px)`;
+      card.style.setProperty('--mx', `${x * 100}%`); card.style.setProperty('--my', `${y * 100}%`);
+    });
+    card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+  });
+})();
+</script>
+</body>
+</html>
